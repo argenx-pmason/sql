@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState, useRef } from "react";
 import { DataGridPro, LicenseInfo, GridToolbar } from "@mui/x-data-grid-pro";
+import { usePapaParse } from "react-papaparse";
 import * as alasql from "alasql";
 import {
   TextField,
@@ -22,13 +23,14 @@ LicenseInfo.setLicenseKey(
 );
 
 function App() {
+  let realhost;
   // make columns definition from the first row of the data
   const title = "Query data using SQL",
     { location } = window,
     { search, host, href } = location,
-    mode = href.startsWith("http://localhost") ? "local" : "remote";
+    mode = href.startsWith("http://localhost") ? "local" : "remote",
+    { readString } = usePapaParse();
 
-  let realhost;
   if (host.includes("sharepoint")) {
     realhost = "xarprod.ondemand.sas.com";
   } else if (host.includes("localhost")) {
@@ -54,11 +56,18 @@ function App() {
     // statement = "select indication, count(*) from ? group by indication",
     // [sql, setSql] = useState(null),
     getFile = async () => {
-      const response = await fetch(webDavPrefix + path),
-        _rows = await response.json(),
-        _rows2 = _key ? _rows[_key] : _rows;
+      const response = await fetch(webDavPrefix + path);
+      let _rows = null,
+        _rows0 = null;
+      if (path.endsWith(".csv")) _rows0 = await response.text();
+      else _rows = await response.json();
+      if (path.endsWith(".csv")) {
+        const _rows1 = readString(_rows0, { header: true });
+        _rows = _rows1.data;
+      }
+      const _rows2 = _key ? _rows[_key] : _rows;
       console.log(
-        "getJobFile - fetch: response=",
+        "getFile - fetch: response=",
         response,
         "_rows=",
         _rows,
