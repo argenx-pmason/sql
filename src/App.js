@@ -34,7 +34,7 @@ function App() {
   if (host.includes("sharepoint")) {
     realhost = "xarprod.ondemand.sas.com";
   } else if (host.includes("localhost")) {
-    realhost = "xartest.ondemand.sas.com";
+    realhost = "xarval.ondemand.sas.com";
   } else {
     realhost = host;
   }
